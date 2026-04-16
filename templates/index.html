@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription Automation - Bicutan Medical Center</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="/static/css/logocircle.png" alt="Bicutan Medical Center Logo" class="header-logo">
+            <h1>Prescription Automation System</h1>
+            <p>Bicutan Medical Center</p>
+        </header>
+
+        <main>
+            <form id="prescriptionForm" method="POST" action="/generate">
+                <section class="form-section">
+                    <h2>Patient Information</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient_name">Patient Name:</label>
+                            <input type="text" id="patient_name" name="patient_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="date">Date:</label>
+                            <input type="date" id="date" name="date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="address">Address:</label>
+                            <input type="text" id="address" name="address" style="flex: 1;">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="age">Age:</label>
+                            <input type="number" id="age" name="age" min="0" max="150">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h2>Medications</h2>
+                    <p class="info-text">Enter medications below (one per line). Each will be displayed as a bullet point on the prescription.</p>
+                    
+                    <div id="medicationsContainer">
+                        <div class="medication-item">
+                            <textarea name="medication_1" class="medication-input" placeholder="E.g., Amoxicillin 500mg - 3x daily for 7 days"></textarea>
+                            <button type="button" class="btn-remove" onclick="removeMedication(this)">Remove</button>
+                        </div>
+                        <div class="medication-item">
+                            <textarea name="medication_2" class="medication-input" placeholder="E.g., Ibuprofen 200mg - As needed for pain"></textarea>
+                            <button type="button" class="btn-remove" onclick="removeMedication(this)">Remove</button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-add" onclick="addMedication()">+ Add Medication</button>
+                </section>
+
+                <section class="form-actions">
+                    <button type="button" class="btn-primary" onclick="previewPrescription()">Preview</button>
+                    <button type="button" class="btn-secondary" onclick="downloadPrescription()">Download</button>
+                    <button type="button" class="btn-secondary" onclick="printPrescription()">Print</button>
+                    <button type="reset" class="btn-secondary">Clear Form</button>
+                </section>
+            </form>
+        </main>
+
+        <!-- Preview Modal -->
+        <div id="previewModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closePreview()">&times;</span>
+                <h2>Prescription Preview</h2>
+                <div id="previewContainer">
+                    <img id="previewImage" src="" alt="Prescription Preview" style="max-width: 100%; border: 1px solid #ddd; margin-top: 10px;">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-primary" onclick="downloadFromPreview()">Download</button>
+                    <button type="button" class="btn-secondary" onclick="printFromPreview()">Print</button>
+                    <button type="button" class="btn-secondary" onclick="closePreview()">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2024 Prescription Automation System - Bicutan Medical Center</p>
+        </footer>
+    </div>
+
+    <script>
+        let medicationCount = 2;
+
+        function addMedication() {
+            medicationCount++;
+            const container = document.getElementById('medicationsContainer');
+            const newItem = document.createElement('div');
+            newItem.className = 'medication-item';
+            newItem.innerHTML = `
+                <textarea name="medication_${medicationCount}" class="medication-input" placeholder="Enter medication and instructions"></textarea>
+                <button type="button" class="btn-remove" onclick="removeMedication(this)">Remove</button>
+            `;
+            container.appendChild(newItem);
+        }
+
+        function removeMedication(button) {
+            const items = document.querySelectorAll('.medication-item');
+            if (items.length > 1) {
+                button.parentElement.remove();
+            } else {
+                alert('At least one medication field must remain.');
+            }
+        }
+
+        document.getElementById('prescriptionForm').addEventListener('submit', function(e) {
+            const patientName = document.getElementById('patient_name').value.trim();
+            if (!patientName) {
+                e.preventDefault();
+                alert('Please enter patient name.');
+                return;
+            }
+
+            const medications = Array.from(document.querySelectorAll('textarea[name^="medication_"]'))
+                .map(t => t.value.trim())
+                .filter(m => m !== '');
+
+            if (medications.length === 0) {
+                e.preventDefault();
+                alert('Please add at least one medication.');
+                return;
+            }
+        });
+
+        function validateForm() {
+            const patientName = document.getElementById('patient_name').value.trim();
+            if (!patientName) {
+                alert('Please enter patient name.');
+                return false;
+            }
+
+            const medications = Array.from(document.querySelectorAll('textarea[name^="medication_"]'))
+                .map(t => t.value.trim())
+                .filter(m => m !== '');
+
+            if (medications.length === 0) {
+                alert('Please add at least one medication.');
+                return false;
+            }
+            return true;
+        }
+
+        function previewPrescription() {
+            if (!validateForm()) return;
+
+            const form = document.getElementById('prescriptionForm');
+            const formData = new FormData(form);
+
+            fetch('/preview', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                document.getElementById('previewImage').src = url;
+                document.getElementById('previewModal').style.display = 'block';
+                // Store URL for later download/print
+                window.previewImageUrl = url;
+            })
+            .catch(error => {
+                alert('Error generating preview: ' + error);
+                console.error('Error:', error);
+            });
+        }
+
+        function downloadPrescription() {
+            if (!validateForm()) return;
+
+            const form = document.getElementById('prescriptionForm');
+            const formData = new FormData(form);
+
+            fetch('/download', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'prescription_' + new Date().getTime() + '.png';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            })
+            .catch(error => {
+                alert('Error downloading prescription: ' + error);
+                console.error('Error:', error);
+            });
+        }
+
+        function printPrescription() {
+            if (!validateForm()) return;
+
+            const form = document.getElementById('prescriptionForm');
+            const formData = new FormData(form);
+
+            fetch('/preview', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const printWindow = window.open(url);
+                printWindow.addEventListener('load', function() {
+                    printWindow.print();
+                });
+            })
+            .catch(error => {
+                alert('Error printing prescription: ' + error);
+                console.error('Error:', error);
+            });
+        }
+
+        function downloadFromPreview() {
+            const form = document.getElementById('prescriptionForm');
+            const formData = new FormData(form);
+
+            fetch('/download', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'prescription_' + new Date().getTime() + '.png';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            })
+            .catch(error => {
+                alert('Error downloading prescription: ' + error);
+                console.error('Error:', error);
+            });
+        }
+
+        function printFromPreview() {
+            if (window.previewImageUrl) {
+                const printWindow = window.open(window.previewImageUrl);
+                printWindow.addEventListener('load', function() {
+                    printWindow.print();
+                });
+            }
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('previewModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
