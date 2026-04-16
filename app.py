@@ -88,7 +88,7 @@ def generate_prescription_png(patient_name, address, age, date, medications, sig
     draw.text((margin_left + int(1.9 * 300), y), patient_name, fill='black', font=normal_font)
     y += int(0.4 * 300)
     # Underline for Patient Name
-    draw.line([(margin_left + int(1.9 * 300), y), (width - margin_right - int(3.2 * 300), y)], fill='black', width=2)
+    draw.line([(margin_left + int(1.3 * 300), y), (width - margin_right - int(3.2 * 300), y)], fill='black', width=2)
     
     # Date - label and data with underline
     y -= int(0.4 * 300)
@@ -105,7 +105,7 @@ def generate_prescription_png(patient_name, address, age, date, medications, sig
     draw.text((margin_left + int(1 * 300), y), address, fill='black', font=normal_font)
     y += int(0.4 * 300)
     # Underline for Address
-    draw.line([(margin_left + int(1.4 * 300), y), (width - margin_right - int(3.2 * 300), y)], fill='black', width=2)
+    draw.line([(margin_left + int(1 * 300), y), (width - margin_right - int(3.2 * 300), y)], fill='black', width=2)
     
     # Age - label and data with underline
     y -= int(0.4 * 300)
