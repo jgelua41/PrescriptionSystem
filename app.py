@@ -25,14 +25,21 @@ def generate_prescription_png(patient_name, address, age, date, medications, sig
     
     try:
         # Try to use a better font, fall back to default if not available
-        title_font = ImageFont.truetype("arial.ttf", int(32 * 300 / 72))
-        subtitle_font = ImageFont.truetype("arial.ttf", int(15 * 300 / 72))
-        normal_font = ImageFont.truetype("arial.ttf", int(14 * 300 / 72))
+        # Use DejaVuSans which is available on Linux servers
+        title_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", int(40 * 300 / 72))
+        subtitle_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", int(18 * 300 / 72))
+        normal_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", int(16 * 300 / 72))
     except:
-        # Fallback to default font
-        title_font = ImageFont.load_default()
-        subtitle_font = ImageFont.load_default()
-        normal_font = ImageFont.load_default()
+        # Fallback - try Windows fonts
+        try:
+            title_font = ImageFont.truetype("arial.ttf", int(40 * 300 / 72))
+            subtitle_font = ImageFont.truetype("arial.ttf", int(18 * 300 / 72))
+            normal_font = ImageFont.truetype("arial.ttf", int(16 * 300 / 72))
+        except:
+            # Last resort - use default font
+            title_font = ImageFont.load_default()
+            subtitle_font = ImageFont.load_default()
+            normal_font = ImageFont.load_default()
     
     # Add logo if it exists
     logo_path = os.path.join(os.path.dirname(__file__), 'static', 'css', 'logocircle.png')
@@ -112,9 +119,12 @@ def generate_prescription_png(patient_name, address, age, date, medications, sig
     
     # Rx Symbol (large)
     try:
-        rx_font = ImageFont.truetype("arial.ttf", int(64 * 300 / 72))
+        rx_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", int(72 * 300 / 72))
     except:
-        rx_font = normal_font
+        try:
+            rx_font = ImageFont.truetype("arial.ttf", int(72 * 300 / 72))
+        except:
+            rx_font = normal_font
     draw.text((margin_left, y), "Rx", fill='black', font=rx_font)
     y += int(1.3 * 300)
     
