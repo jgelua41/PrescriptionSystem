@@ -85,33 +85,33 @@ def generate_prescription_png(patient_name, address, age, date, medications, sig
     
     # Patient Name - label and data with underline
     draw.text((margin_left, y), "Patient Name:", fill='black', font=normal_font)
-    draw.text((margin_left + int(1.5 * 300), y), patient_name, fill='black', font=normal_font)
-    y += int(0.25 * 300)
+    draw.text((margin_left + int(1.9 * 300), y), patient_name, fill='black', font=normal_font)
+    y += int(0.4 * 300)
     # Underline for Patient Name
-    draw.line([(margin_left + int(1.2 * 300), y), (width - margin_right - int(3.2 * 300), y)], fill='black', width=2)
+    draw.line([(margin_left + int(1.9 * 300), y), (width - margin_right - int(3.2 * 300), y)], fill='black', width=2)
     
     # Date - label and data with underline
-    y -= int(0.25 * 300)
+    y -= int(0.4 * 300)
     draw.text((width - margin_right - int(2.2 * 300), y), "Date:", fill='black', font=normal_font)
     draw.text((width - margin_right - int(1.5 * 300), y), date, fill='black', font=normal_font)
-    y += int(0.25 * 300)
+    y += int(0.4 * 300)
     # Underline for Date
     draw.line([(width - margin_right - int(1.7 * 300), y), (width - margin_right, y)], fill='black', width=2)
     
-    y += int(0.35 * 300)
+    y += int(0.5 * 300)
     
     # Address - label and data with underline
     draw.text((margin_left, y), "Address:", fill='black', font=normal_font)
     draw.text((margin_left + int(1 * 300), y), address, fill='black', font=normal_font)
-    y += int(0.25 * 300)
+    y += int(0.4 * 300)
     # Underline for Address
-    draw.line([(margin_left + int(.8 * 300), y), (width - margin_right - int(3.2 * 300), y)], fill='black', width=2)
+    draw.line([(margin_left + int(1.4 * 300), y), (width - margin_right - int(3.2 * 300), y)], fill='black', width=2)
     
     # Age - label and data with underline
-    y -= int(0.25 * 300)
+    y -= int(0.4 * 300)
     draw.text((width - margin_right - int(2.2 * 300), y), "Age:", fill='black', font=normal_font)
     draw.text((width - margin_right - int(1.5 * 300), y), age, fill='black', font=normal_font)
-    y += int(0.25 * 300)
+    y += int(0.4 * 300)
     # Underline for Age
     draw.line([(width - margin_right - int(1.8 * 300), y), (width - margin_right, y)], fill='black', width=2)
     
